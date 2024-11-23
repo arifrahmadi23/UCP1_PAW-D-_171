@@ -23,7 +23,7 @@ app.use(session({
 
 app.use('/', authRoutes);
 
-app.use('/todos', todoRoutes);
+app.use('/pasiendb', todoRoutes);
 app.set('view engine', 'ejs');
 
 app.get('/', isAuthenticated,(req, res) => {

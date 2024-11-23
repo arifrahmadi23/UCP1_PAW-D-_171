@@ -1,13 +1,7 @@
 <div class="container mt-5">
     <h1 class="text-center">Daftar Pasien</h1>
 
-    <!-- Pencarian Pasien -->
-    <div class="form-group mb-4 d-flex">
-        <label for="searchPatient" class="form-label me-3">Cari Pasien</label>
-        <input type="text" class="form-control" id="searchPatient" placeholder="Cari berdasarkan nama pasien">
-        <button class="btn btn-secondary ms-2" id="searchButton">Cari</button>
-    </div>
-
+    
     <!-- Form to Add New Patient -->
     <!-- Tombol untuk menampilkan modal tambah pasien -->
     <button class="btn btn-primary" id="addPatientBtn">Tambah Pasien</button>
@@ -25,16 +19,16 @@
                 <!-- Form untuk menambah pasien -->
                 <form id="addPatientForm">
                     <div class="form-group">
-                        <label for="patientName">Nama Pasien</label>
-                        <input type="text" id="patientName" class="form-control" placeholder="Masukkan nama pasien" required>
+                        <label for="NamaPasien">Nama Pasien</label>
+                        <input type="text" id="NamaPasien" class="form-control" placeholder="Masukkan nama pasien" required>
                     </div>
                     <div class="form-group">
-                        <label for="patientAddress">Alamat Pasien</label>
-                        <input type="text" id="patientAddress" class="form-control" placeholder="Masukkan alamat pasien" required>
+                        <label for="Alamat">Alamat Pasien</label>
+                        <input type="text" id="Alamat" class="form-control" placeholder="Masukkan alamat pasien" required>
                     </div>
                     <div class="form-group">
-                        <label for="patientPhone">Nomor Telepon Pasien</label>
-                        <input type="text" id="patientPhone" class="form-control" placeholder="Masukkan nomor telepon pasien" required>
+                        <label for="NoTelp">Nomor Telepon Pasien</label>
+                        <input type="text" id="NoTelp" class="form-control" placeholder="Masukkan nomor telepon pasien" required>
                     </div>
                     <button type="submit" class="btn btn-primary mt-3">Tambah Pasien</button>
                 </form>
@@ -72,16 +66,16 @@
                 <div class="modal-body">
                     <form id="editPatientForm">
                         <div class="form-group">
-                            <label for="editPatientName">Name</label>
-                            <input type="text" id="editPatientName" class="form-control" required>
+                            <label for="editNamaPasien">Name</label>
+                            <input type="text" id="editNamaPasien" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label for="editPatientAddress">Address</label>
-                            <input type="text" id="editPatientAddress" class="form-control" required>
+                            <label for="editAlamat">Address</label>
+                            <input type="text" id="editAlamat" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label for="editPatientPhone">Phone Number</label>
-                            <input type="text" id="editPatientPhone" class="form-control" required>
+                            <label for="editNoTelp">Phone Number</label>
+                            <input type="text" id="editNoTelp" class="form-control" required>
                         </div>
                         <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
                     </form>
@@ -103,19 +97,19 @@
         // Menambah pasien baru
         $('#addPatientForm').on('submit', function (e) {
             e.preventDefault();
-            const patientName = $('#patientName').val().trim();
-            const patientAddress = $('#patientAddress').val().trim();
-            const patientPhone = $('#patientPhone').val().trim();
+            const NamaPasien = $('#NamaPasien').val().trim();
+            const Alamat = $('#Alamat').val().trim();
+            const NoTelp = $('#NoTelp').val().trim();
 
-            if (patientName && patientAddress && patientPhone) {
+            if (NamaPasien && Alamat && NoTelp) {
                 $.ajax({
-                    url: '/pasien',
+                    url: '/pasiendb',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        namaPasien: patientName,
-                        alamat: patientAddress,
-                        noTelp: patientPhone
+                        namaPasien: NamaPasien,
+                        alamat: Alamat,
+                        noTelp: NoTelp
                     }),
                     success: function () {
                         location.reload(); // Reload untuk menampilkan pasien baru
@@ -131,8 +125,8 @@
         $('#searchButton').on('click', function () {
             const searchQuery = $('#searchPatient').val().toLowerCase();
             $('#patientList li').each(function () {
-                const patientName = $(this).find('span').text().toLowerCase();
-                if (patientName.indexOf(searchQuery) === -1) {
+                const NamaPasien = $(this).find('span').text().toLowerCase();
+                if (NamaPasien.indexOf(searchQuery) === -1) {
                     $(this).hide(); // Sembunyikan jika nama tidak cocok
                 } else {
                     $(this).show(); // Tampilkan jika nama cocok
@@ -142,46 +136,76 @@
 
         // Delete a patient
         $('.deleteBtn').on('click', function () {
-            const id = $(this).data('id');
-            $.ajax({
-                url: '/pasien/' + id,
-                type: 'DELETE',
-                success: function () {
-                    location.reload(); // Reload untuk menampilkan daftar yang sudah diperbarui
-                }
-            });
-        });
+        const id = $(this).data('id');
+        console.log("ID yang dikirim:", id);  // Menampilkan ID yang dikirim
+        $.ajax({
+            url: '/pasiendb/' + id,
+            type: 'DELETE',
+            success: function () {
+            location.reload(); // Reload untuk menampilkan daftar yang sudah diperbarui
+        },
+            error: function (xhr, status, error) {
+                console.error("Error during delete:", error);
+        }
+    });
+});
+
 
         // Show edit modal with the current patient's data
         let editId;
-        $('.editBtn').on('click', function () {
-            editId = $(this).data('id');
-            const patientName = $(this).closest('li').find('span').find('strong').next().text().trim();
-            const patientAddress = $(this).closest('li').find('span').find('strong').next().next().text().trim();
-            const patientPhone = $(this).closest('li').find('span').find('strong').next().next().next().text().trim();
-            $('#editPatientName').val(patientName);
-            $('#editPatientAddress').val(patientAddress);
-            $('#editPatientPhone').val(patientPhone);
-            $('#editModal').modal('show');
-        });
 
-        // Update patient on form submission
-        $('#editPatientForm').on('submit', function (e) {
-            e.preventDefault();
-            const name = $('#editPatientName').val().trim();
-            const address = $('#editPatientAddress').val().trim();
-            const phone = $('#editPatientPhone').val().trim();
-            if (name && address && phone) {
-                $.ajax({
-                    url: '/pasien/' + editId,
-                    type: 'PUT',
-                    data: JSON.stringify({ namaPasien: name, alamat: address, noTelp: phone }),
-                    contentType: 'application/json',
-                    success: function () {
-                        location.reload(); // Reload untuk menampilkan pasien yang sudah diperbarui
-                    }
-                });
+    // When the edit button is clicked
+    $('.editBtn').on('click', function () {
+        editId = $(this).data('id');  // Store the patient ID from the button data attribute
+
+        // Get the current patient data to pre-fill the modal
+        const NamaPasien = $(this).closest('li').find('span').find('strong').next().text().trim();
+        const Alamat = $(this).closest('li').find('span').find('strong').next().next().text().trim();
+        const NoTelp = $(this).closest('li').find('span').find('strong').next().next().next().text().trim();
+
+        // Populate the form fields with the current data
+        $('#editNamaPasien').val(NamaPasien);
+        $('#editAlamat').val(Alamat);
+        $('#editNoTelp').val(NoTelp);
+
+        // Show the modal
+        $('#editModal').modal('show');
+    });
+
+    // Handle form submission
+    $('#editPatientForm').on('submit', function (e) {
+    e.preventDefault();  // Prevent the form from submitting normally
+
+    // Get the updated data from the form
+    const NamaPasien = $('#editNamaPasien').val().trim();
+    const Alamat = $('#editAlamat').val().trim();
+    const NoTelp = $('#editNoTelp').val().trim();
+
+    // Make sure the fields are not empty
+    if (NamaPasien && Alamat && NoTelp) {
+        // Send the data via AJAX to update the patient in the database
+        $.ajax({
+            url: '/pasiendb/' + editId,  // Use the patient ID from the button data
+            type: 'PUT',  // Use PUT for updating data
+            contentType: 'application/json',  // Ensure the data is sent as JSON
+            data: JSON.stringify({
+                namaPasien: NamaPasien,
+                alamat: Alamat,
+                noTelp: NoTelp
+            }),
+            success: function (response) {
+                alert("Patient data updated successfully!");
+                $('#editModal').modal('hide');  // Close the modal
+                location.reload();  // Reload the page to reflect changes
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", error);
+                alert("Failed to update patient data");
             }
         });
+    } else {
+        alert("Please fill in all fields.");
+    }
+});
     });
 </script>
